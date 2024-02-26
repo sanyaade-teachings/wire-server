@@ -175,6 +175,12 @@ isUserLegalholdDisabledNotif = notifTypeIsEqual "user.legalhold-disable"
 isUserConnectionNotif :: MakesValue a => a -> App Bool
 isUserConnectionNotif = notifTypeIsEqual "user.connection"
 
+isConnectionNotif :: MakesValue a => String -> a -> App Bool
+isConnectionNotif status n =
+  (&&)
+    <$> nPayload n %. "type" `isEqual` "user.connection"
+    <*> nPayload n %. "connection.status" `isEqual` status
+
 assertLeaveNotification ::
   ( HasCallStack,
     MakesValue fromUser,
