@@ -96,6 +96,9 @@ library
     Wire.PasswordResetCodeStore.Cassandra
     Wire.PasswordStore
     Wire.PasswordStore.Cassandra
+    Wire.PropertyStore
+    Wire.PropertyStore.Cassandra
+    Wire.PropertySubsystem
     Wire.Rpc
     Wire.SessionStore
     Wire.SessionStore.Cassandra
