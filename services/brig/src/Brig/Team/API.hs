@@ -275,7 +275,6 @@ createInvitation' tid mUid inviteeRole mbInviterUid fromEmail body = do
           mbInviterUid
           inviteeEmail
           inviteeName
-          Nothing -- ignore phone
           timeout
     (newInv, code) <$ sendInvitationMail inviteeEmail tid fromEmail code locale
 
