@@ -949,12 +949,10 @@ newUserFromSpar new =
     { newUserDisplayName = newUserSparDisplayName new,
       newUserUUID = Just $ newUserSparUUID new,
       newUserIdentity = Just $ SSOIdentity (newUserSparSSOId new) Nothing,
-      newUserPhone = Nothing,
       newUserPict = Nothing,
       newUserAssets = [],
       newUserAccentId = Nothing,
       newUserEmailCode = Nothing,
-      newUserPhoneCode = Nothing,
       newUserOrigin = Just . NewUserOriginTeamUser . NewTeamMemberSSO $ newUserSparTeamId new,
       newUserLabel = Nothing,
       newUserPassword = Nothing,
@@ -969,13 +967,11 @@ data NewUser = NewUser
     -- | use this as 'UserId' (if 'Nothing', call 'Data.UUID.nextRandom').
     newUserUUID :: Maybe UUID,
     newUserIdentity :: Maybe UserIdentity,
-    newUserPhone :: Maybe Phone,
     -- | DEPRECATED
     newUserPict :: Maybe Pict,
     newUserAssets :: [Asset],
     newUserAccentId :: Maybe ColourId,
     newUserEmailCode :: Maybe ActivationCode,
-    newUserPhoneCode :: Maybe ActivationCode,
     newUserOrigin :: Maybe NewUserOrigin,
     newUserLabel :: Maybe CookieLabel,
     newUserLocale :: Maybe Locale,
@@ -993,12 +989,10 @@ emptyNewUser name =
     { newUserDisplayName = name,
       newUserUUID = Nothing,
       newUserIdentity = Nothing,
-      newUserPhone = Nothing,
       newUserPict = Nothing,
       newUserAssets = [],
       newUserAccentId = Nothing,
       newUserEmailCode = Nothing,
-      newUserPhoneCode = Nothing,
       newUserOrigin = Nothing,
       newUserLabel = Nothing,
       newUserLocale = Nothing,
@@ -1016,16 +1010,12 @@ data NewUserRaw = NewUserRaw
   { newUserRawDisplayName :: Name,
     newUserRawUUID :: Maybe UUID,
     newUserRawEmail :: Maybe Email,
-    -- | This is deprecated and it should always be 'Nothing'.
-    newUserRawPhone :: Maybe Phone,
     newUserRawSSOId :: Maybe UserSSOId,
     -- | DEPRECATED
     newUserRawPict :: Maybe Pict,
     newUserRawAssets :: [Asset],
     newUserRawAccentId :: Maybe ColourId,
     newUserRawEmailCode :: Maybe ActivationCode,
-    -- | This is deprecated and it should always be 'Nothing'.
-    newUserRawPhoneCode :: Maybe ActivationCode,
     newUserRawInvitationCode :: Maybe InvitationCode,
     newUserRawTeamCode :: Maybe InvitationCode,
     newUserRawTeam :: Maybe BindingNewTeamUser,
@@ -1047,8 +1037,6 @@ newUserRawObjectSchema =
       .= maybe_ (optField "uuid" genericToSchema)
     <*> newUserRawEmail
       .= maybe_ (optField "email" schema)
-    <*> newUserRawPhone
-      .= maybe_ (optField "phone" schema)
     <*> newUserRawSSOId
       .= maybe_ (optField "sso_id" genericToSchema)
     <*> newUserRawPict
@@ -1059,8 +1047,6 @@ newUserRawObjectSchema =
       .= maybe_ (optField "accent_id" schema)
     <*> newUserRawEmailCode
       .= maybe_ (optField "email_code" schema)
-    <*> newUserRawPhoneCode
-      .= maybe_ (optField "phone_code" schema)
     <*> newUserRawInvitationCode
       .= maybe_ (optField "invitation_code" schema)
     <*> newUserRawTeamCode
@@ -1093,13 +1079,11 @@ newUserToRaw NewUser {..} =
         { newUserRawDisplayName = newUserDisplayName,
           newUserRawUUID = newUserUUID,
           newUserRawEmail = emailIdentity =<< newUserIdentity,
-          newUserRawPhone = newUserPhone,
           newUserRawSSOId = ssoIdentity =<< newUserIdentity,
           newUserRawPict = newUserPict,
           newUserRawAssets = newUserAssets,
           newUserRawAccentId = newUserAccentId,
           newUserRawEmailCode = newUserEmailCode,
-          newUserRawPhoneCode = newUserPhoneCode,
           newUserRawInvitationCode = newUserOriginInvitationCode =<< newUserOrigin,
           newUserRawTeamCode = newTeamUserCode =<< maybeOriginNTU,
           newUserRawTeam = newTeamUserCreator =<< maybeOriginNTU,
@@ -1132,12 +1116,10 @@ newUserFromRaw NewUserRaw {..} = do
       { newUserDisplayName = newUserRawDisplayName,
         newUserUUID = newUserRawUUID,
         newUserIdentity = identity,
-        newUserPhone = newUserRawPhone,
         newUserPict = newUserRawPict,
         newUserAssets = newUserRawAssets,
         newUserAccentId = newUserRawAccentId,
         newUserEmailCode = newUserRawEmailCode,
-        newUserPhoneCode = newUserRawPhoneCode,
         newUserOrigin = origin,
         newUserLabel = newUserRawLabel,
         newUserLocale = newUserRawLocale,
@@ -1151,7 +1133,6 @@ newUserFromRaw NewUserRaw {..} = do
 instance Arbitrary NewUser where
   arbitrary = do
     newUserIdentity <- arbitrary
-    newUserPhone <- arbitrary
     newUserOrigin <- genUserOrigin newUserIdentity
     newUserDisplayName <- arbitrary
     newUserUUID <- QC.elements [Just nil, Nothing]
@@ -1159,7 +1140,6 @@ instance Arbitrary NewUser where
     newUserAssets <- arbitrary
     newUserAccentId <- arbitrary
     newUserEmailCode <- arbitrary
-    newUserPhoneCode <- arbitrary
     newUserLabel <- arbitrary
     newUserLocale <- arbitrary
     newUserPassword <- genUserPassword newUserIdentity newUserOrigin
